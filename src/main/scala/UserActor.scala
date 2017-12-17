@@ -9,14 +9,14 @@ class UserActor(userId: String) extends Actor {
   val log = Logging(context.system, this)
 
   var currentMessage: Option[UserMessage] = None
-  var currentTrigger: Option[Cancellable] = None
+  var currentSendNowCancellable: Option[Cancellable] = None
 
   override def receive: Receive = {
     case um @ UserMessage(msg) => {
       log.info(s"received message: $msg")
       currentMessage = Option(um)
-      currentTrigger.map(_.cancel)
-      currentTrigger = Option(
+      currentSendNowCancellable.map(_.cancel)
+      currentSendNowCancellable = Option(
         context.system.scheduler.schedule(2.second, 1.second, self, SendNow))
     }
     case SendNow =>
